@@ -4,12 +4,6 @@ import com.technicalchallenge.dto.TradeDTO;
 import com.technicalchallenge.mapper.TradeMapper;
 import com.technicalchallenge.model.Trade;
 import com.technicalchallenge.service.TradeService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,12 +11,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.validation.Valid;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/trades")
@@ -31,10 +28,14 @@ import org.slf4j.LoggerFactory;
 public class TradeController {
     private static final Logger logger = LoggerFactory.getLogger(TradeController.class);
 
-    @Autowired
-    private TradeService tradeService;
-    @Autowired
-    private TradeMapper tradeMapper;
+
+    private final TradeService tradeService;
+    private final TradeMapper tradeMapper;
+
+    public TradeController(TradeService tradeService, TradeMapper tradeMapper) {
+        this.tradeService = tradeService;
+        this.tradeMapper = tradeMapper;
+    }
 
     @GetMapping
     @Operation(summary = "Get all trades",
