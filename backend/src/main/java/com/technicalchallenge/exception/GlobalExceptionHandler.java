@@ -16,4 +16,5 @@ public class GlobalExceptionHandler {
                 .getDefaultMessage();
         return ResponseEntity.badRequest().body(message);
     }
+
 }
