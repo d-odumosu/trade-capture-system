@@ -4,11 +4,10 @@ import com.technicalchallenge.dto.TradeDTO;
 import com.technicalchallenge.dto.TradeLegDTO;
 import com.technicalchallenge.model.*;
 import com.technicalchallenge.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,39 +21,39 @@ import java.util.Optional;
 public class TradeService {
     private static final Logger logger = LoggerFactory.getLogger(TradeService.class);
 
-    @Autowired
+
     private TradeRepository tradeRepository;
-    @Autowired
+
     private TradeLegRepository tradeLegRepository;
-    @Autowired
+
     private CashflowRepository cashflowRepository;
-    @Autowired
+
     private TradeStatusRepository tradeStatusRepository;
-    @Autowired
+
     private BookRepository bookRepository;
-    @Autowired
+
     private CounterpartyRepository counterpartyRepository;
-    @Autowired
+
     private ApplicationUserRepository applicationUserRepository;
-    @Autowired
+
     private TradeTypeRepository tradeTypeRepository;
-    @Autowired
+
     private TradeSubTypeRepository tradeSubTypeRepository;
-    @Autowired
+
     private CurrencyRepository currencyRepository;
-    @Autowired
+
     private LegTypeRepository legTypeRepository;
-    @Autowired
+
     private IndexRepository indexRepository;
-    @Autowired
+
     private HolidayCalendarRepository holidayCalendarRepository;
-    @Autowired
+
     private ScheduleRepository scheduleRepository;
-    @Autowired
+
     private BusinessDayConventionRepository businessDayConventionRepository;
-    @Autowired
+
     private PayRecRepository payRecRepository;
-    @Autowired
+
     private AdditionalInfoService additionalInfoService;
 
     public List<Trade> getAllTrades() {
