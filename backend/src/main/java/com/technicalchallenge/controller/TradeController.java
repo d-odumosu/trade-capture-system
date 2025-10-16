@@ -71,7 +71,6 @@ public class TradeController {
                 .map(tradeMapper::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-
     }
 
     @PostMapping
@@ -117,9 +116,6 @@ public class TradeController {
             @Parameter(description = "Updated trade details", required = true)
             @Valid @RequestBody TradeDTO tradeDTO) {
         logger.info("Updating trade with id: {}", id);
-        if (!id.equals(tradeDTO.getTradeId())) {
-            return ResponseEntity.badRequest().body("Trade ID in path must match Trade ID in request body");
-        }
         try {
             tradeDTO.setTradeId(id); // Ensure the ID matches
             Trade amendedTrade = tradeService.amendTrade(id, tradeDTO);
@@ -147,6 +143,7 @@ public class TradeController {
         try {
             tradeService.deleteTrade(id);
             return ResponseEntity.noContent().build();
+
         } catch (Exception e) {
             logger.error("Error deleting trade: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body("Error deleting trade: " + e.getMessage());
