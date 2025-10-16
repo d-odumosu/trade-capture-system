@@ -43,7 +43,6 @@ class TradeServiceTest {
 
     @InjectMocks
     private TradeService tradeService;
-
     private TradeDTO tradeDTO;
     private Trade trade;
 
@@ -140,6 +139,7 @@ class TradeServiceTest {
     @Test
     void testAmendTrade_Success() {
         // Given
+
         when(tradeRepository.findByTradeIdAndActiveTrue(100001L)).thenReturn(Optional.of(trade));
         when(tradeStatusRepository.findByTradeStatus("AMENDED")).thenReturn(Optional.of(new com.technicalchallenge.model.TradeStatus()));
         when(tradeRepository.save(any(Trade.class))).thenReturn(trade);
