@@ -3,6 +3,7 @@ package com.technicalchallenge.service;
 import com.technicalchallenge.dto.TradeDTO;
 import com.technicalchallenge.dto.TradeLegDTO;
 import com.technicalchallenge.mapper.TradeLegMapper;
+import com.technicalchallenge.model.Book;
 import com.technicalchallenge.model.Trade;
 import com.technicalchallenge.model.TradeLeg;
 import com.technicalchallenge.model.TradeStatus;
@@ -44,7 +45,6 @@ class TradeServiceTest {
     TradeStatus  tradeStatus;
 
 
-
     @BeforeEach
     void setUp() {
         // Set up test data
@@ -57,6 +57,21 @@ class TradeServiceTest {
         tradeStatus = new TradeStatus();
         tradeStatus.setTradeStatus("AMENDED");
 
+        mockTradeLeg = new TradeLeg();
+        mockTradeLeg.setLegId(1L);
+        mockTradeLeg.setNotional(BigDecimal.valueOf(1000000));
+        mockTradeLeg.setRate(0.05);
+
+        Book mockBook = new Book();
+        mockBook.setBookName("TestBook");
+
+        trade = new Trade();
+        trade.setTradeId(100001L);
+        trade.setVersion(1);
+        trade.setActive(true);
+        trade.setCreatedDate(LocalDateTime.now().minusDays(1));
+        trade.setBook(mockBook);
+
         TradeLegDTO leg1 = new TradeLegDTO();
         leg1.setNotional(BigDecimal.valueOf(1000000));
         leg1.setRate(0.05);
@@ -66,14 +81,6 @@ class TradeServiceTest {
         leg2.setRate(0.0);
 
         tradeDTO.setTradeLegs(Arrays.asList(leg1, leg2));
-
-
-        trade = new Trade();
-        trade.setId(1L);
-        trade.setTradeId(100001L);
-        trade.setVersion(1);
-        trade.setActive(true);
-        trade.setCreatedDate(LocalDateTime.now().minusDays(1));
 
     }
 
@@ -148,10 +155,14 @@ class TradeServiceTest {
 
         // Given
 
-        when(tradeRepository.findByTradeIdAndActiveTrue(100001L)).thenReturn(Optional.of(trade));
-        when(tradeStatusRepository.findByTradeStatus("AMENDED")).thenReturn(Optional.of(new com.technicalchallenge.model.TradeStatus()));
-        when(tradeRepository.save(any(Trade.class))).thenReturn(trade);
-        when(tradeLegRepository.save(any(TradeLeg.class))).thenReturn(mockTradeLeg);
+        when(tradeRepository.findByTradeIdAndActiveTrue(100001L))
+                .thenReturn(Optional.of(trade));
+        when(tradeStatusRepository.findByTradeStatus("AMENDED"))
+                .thenReturn(Optional.of(new com.technicalchallenge.model.TradeStatus()));
+        when(tradeRepository.save(any(Trade.class)))
+                .thenReturn(trade);
+        when(tradeLegRepository.save(any(TradeLeg.class)))
+                .thenReturn(mockTradeLeg);
 
         // When
         Trade result = tradeService.amendTrade(100001L, tradeDTO);
