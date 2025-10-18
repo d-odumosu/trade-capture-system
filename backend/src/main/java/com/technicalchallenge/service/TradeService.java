@@ -21,39 +21,22 @@ import java.util.Optional;
 public class TradeService {
     private static final Logger logger = LoggerFactory.getLogger(TradeService.class);
 
-
     private TradeRepository tradeRepository;
-
     private TradeLegRepository tradeLegRepository;
-
     private CashflowRepository cashflowRepository;
-
     private TradeStatusRepository tradeStatusRepository;
-
     private BookRepository bookRepository;
-
     private CounterpartyRepository counterpartyRepository;
-
     private ApplicationUserRepository applicationUserRepository;
-
     private TradeTypeRepository tradeTypeRepository;
-
     private TradeSubTypeRepository tradeSubTypeRepository;
-
     private CurrencyRepository currencyRepository;
-
     private LegTypeRepository legTypeRepository;
-
     private IndexRepository indexRepository;
-
     private HolidayCalendarRepository holidayCalendarRepository;
-
     private ScheduleRepository scheduleRepository;
-
     private BusinessDayConventionRepository businessDayConventionRepository;
-
     private PayRecRepository payRecRepository;
-
     private AdditionalInfoService additionalInfoService;
 
     public List<Trade> getAllTrades() {
