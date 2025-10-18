@@ -2,12 +2,11 @@ package com.technicalchallenge.service;
 
 import com.technicalchallenge.dto.TradeDTO;
 import com.technicalchallenge.dto.TradeLegDTO;
+import com.technicalchallenge.mapper.TradeLegMapper;
 import com.technicalchallenge.model.Trade;
 import com.technicalchallenge.model.TradeLeg;
-import com.technicalchallenge.repository.CashflowRepository;
-import com.technicalchallenge.repository.TradeLegRepository;
-import com.technicalchallenge.repository.TradeRepository;
-import com.technicalchallenge.repository.TradeStatusRepository;
+import com.technicalchallenge.model.TradeStatus;
+import com.technicalchallenge.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -26,26 +26,24 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TradeServiceTest {
 
-    @Mock
-    private TradeRepository tradeRepository;
+    @Mock private TradeRepository tradeRepository;
+    @Mock private TradeLegRepository tradeLegRepository;
+    @Mock private CashflowRepository cashflowRepository;
+    @Mock private TradeStatusRepository tradeStatusRepository;
+    @Mock private AdditionalInfoService additionalInfoService;
+    @Mock private TradeLegMapper tradeLegMapper;
+    @Mock private BookRepository bookRepository;
+    @Mock CounterpartyRepository counterpartyRepository;
 
-    @Mock
-    private TradeLegRepository tradeLegRepository;
-
-    @Mock
-    private CashflowRepository cashflowRepository;
-
-    @Mock
-    private TradeStatusRepository tradeStatusRepository;
-
-    @Mock
-    private AdditionalInfoService additionalInfoService;
-
-    @InjectMocks
-    private TradeService tradeService;
+    @InjectMocks private TradeService tradeService;
 
     private TradeDTO tradeDTO;
     private Trade trade;
+    private TradeLeg mockTradeLeg;
+    private TradeLegDTO tradeLegDTO;
+    TradeStatus  tradeStatus;
+
+
 
     @BeforeEach
     void setUp() {
@@ -55,6 +53,9 @@ class TradeServiceTest {
         tradeDTO.setTradeDate(LocalDate.of(2025, 1, 15));
         tradeDTO.setTradeStartDate(LocalDate.of(2025, 1, 17));
         tradeDTO.setTradeMaturityDate(LocalDate.of(2026, 1, 17));
+
+        tradeStatus = new TradeStatus();
+        tradeStatus.setTradeStatus("AMENDED");
 
         TradeLegDTO leg1 = new TradeLegDTO();
         leg1.setNotional(BigDecimal.valueOf(1000000));
@@ -66,9 +67,14 @@ class TradeServiceTest {
 
         tradeDTO.setTradeLegs(Arrays.asList(leg1, leg2));
 
+
         trade = new Trade();
         trade.setId(1L);
         trade.setTradeId(100001L);
+        trade.setVersion(1);
+        trade.setActive(true);
+        trade.setCreatedDate(LocalDateTime.now().minusDays(1));
+
     }
 
     @Test
@@ -139,10 +145,13 @@ class TradeServiceTest {
 
     @Test
     void testAmendTrade_Success() {
+
         // Given
+
         when(tradeRepository.findByTradeIdAndActiveTrue(100001L)).thenReturn(Optional.of(trade));
         when(tradeStatusRepository.findByTradeStatus("AMENDED")).thenReturn(Optional.of(new com.technicalchallenge.model.TradeStatus()));
         when(tradeRepository.save(any(Trade.class))).thenReturn(trade);
+        when(tradeLegRepository.save(any(TradeLeg.class))).thenReturn(mockTradeLeg);
 
         // When
         Trade result = tradeService.amendTrade(100001L, tradeDTO);
@@ -150,6 +159,7 @@ class TradeServiceTest {
         // Then
         assertNotNull(result);
         verify(tradeRepository, times(2)).save(any(Trade.class)); // Save old and new
+        verify(tradeLegRepository, times(2)).save(any(TradeLeg.class));
     }
 
     @Test
