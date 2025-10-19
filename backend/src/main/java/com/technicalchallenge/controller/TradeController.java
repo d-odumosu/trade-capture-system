@@ -115,6 +115,11 @@ public class TradeController {
             @Parameter(description = "Updated trade details", required = true)
             @Valid @RequestBody TradeDTO tradeDTO) {
         logger.info("Updating trade with id: {}", id);
+        if (tradeDTO.getTradeId() == null || !tradeDTO.getTradeId().equals(id)) {
+            return ResponseEntity.badRequest()
+                    .body("Trade ID in path must match Trade ID in request body");
+        }
+
         try {
             tradeDTO.setTradeId(id); // Ensure the ID matches
             Trade amendedTrade = tradeService.amendTrade(id, tradeDTO);
@@ -141,7 +146,8 @@ public class TradeController {
         logger.info("Deleting trade with id: {}", id);
         try {
             tradeService.deleteTrade(id);
-            return ResponseEntity.ok().body("Trade cancelled successfully");
+            return ResponseEntity.noContent().build();
+
         } catch (Exception e) {
             logger.error("Error deleting trade: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body("Error deleting trade: " + e.getMessage());

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 
@@ -136,7 +137,7 @@ public class TradeControllerTest {
         mockMvc.perform(post("/api/trades")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(tradeDTO)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.tradeId", is(1001)));
 
         verify(tradeService).saveTrade(any(Trade.class), any(TradeDTO.class));
@@ -184,7 +185,7 @@ public class TradeControllerTest {
         // Given
         Long tradeId = 1001L;
         tradeDTO.setTradeId(tradeId);
-        when(tradeService.saveTrade(any(Trade.class), any(TradeDTO.class))).thenReturn(trade);
+        when(tradeService.amendTrade(eq(tradeId), any(TradeDTO.class))).thenReturn(trade);
         doNothing().when(tradeService).populateReferenceDataByName(any(Trade.class), any(TradeDTO.class));
 
         // When/Then
@@ -194,7 +195,7 @@ public class TradeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tradeId", is(1001)));
 
-        verify(tradeService).saveTrade(any(Trade.class), any(TradeDTO.class));
+        verify(tradeService).amendTrade(eq(tradeId), any(TradeDTO.class));
     }
 
     @Test
