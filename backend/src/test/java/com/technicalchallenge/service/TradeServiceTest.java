@@ -3,10 +3,7 @@ package com.technicalchallenge.service;
 import com.technicalchallenge.dto.TradeDTO;
 import com.technicalchallenge.dto.TradeLegDTO;
 import com.technicalchallenge.mapper.TradeLegMapper;
-import com.technicalchallenge.model.Book;
-import com.technicalchallenge.model.Trade;
-import com.technicalchallenge.model.TradeLeg;
-import com.technicalchallenge.model.TradeStatus;
+import com.technicalchallenge.model.*;
 import com.technicalchallenge.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,15 +31,28 @@ class TradeServiceTest {
     @Mock private AdditionalInfoService additionalInfoService;
     @Mock private TradeLegMapper tradeLegMapper;
     @Mock private BookRepository bookRepository;
-    @Mock CounterpartyRepository counterpartyRepository;
+    @Mock private CounterpartyRepository counterpartyRepository;
+    @Mock private ApplicationUserRepository applicationUserRepository;
+    @Mock private TradeTypeRepository tradeTypeRepository;
+    @Mock private TradeSubTypeRepository tradeSubTypeRepository;
+    @Mock private CurrencyRepository currencyRepository;
+    @Mock private LegTypeRepository legTypeRepository;
+    @Mock private IndexRepository indexRepository;
+    @Mock private HolidayCalendarRepository holidayCalendarRepository;
+    @Mock private ScheduleRepository scheduleRepository;
+    @Mock private BusinessDayConventionRepository businessDayConventionRepository;
+    @Mock private PayRecRepository payRecRepository;
+
+
 
     @InjectMocks private TradeService tradeService;
 
     private TradeDTO tradeDTO;
     private Trade trade;
     private TradeLeg mockTradeLeg;
-    private TradeLegDTO tradeLegDTO;
     TradeStatus  tradeStatus;
+    private Book mockBook;
+    private Counterparty mockCounterparty;
 
 
     @BeforeEach
@@ -50,28 +60,37 @@ class TradeServiceTest {
         // Set up test data
         tradeDTO = new TradeDTO();
         tradeDTO.setTradeId(100001L);
+        tradeDTO.setBookId(100001L);
+        tradeDTO.setBookName("TestBook");
+        tradeDTO.setCounterpartyId(100001L);
+        tradeDTO.setCounterpartyName("counterpartyName");
         tradeDTO.setTradeDate(LocalDate.of(2025, 1, 15));
         tradeDTO.setTradeStartDate(LocalDate.of(2025, 1, 17));
         tradeDTO.setTradeMaturityDate(LocalDate.of(2026, 1, 17));
 
         tradeStatus = new TradeStatus();
-        tradeStatus.setTradeStatus("AMENDED");
 
         mockTradeLeg = new TradeLeg();
         mockTradeLeg.setLegId(1L);
         mockTradeLeg.setNotional(BigDecimal.valueOf(1000000));
         mockTradeLeg.setRate(0.05);
 
-        Book mockBook = new Book();
+        mockBook = new Book();
         mockBook.setBookName("TestBook");
 
+        mockCounterparty = new Counterparty();
+        mockCounterparty.setName("TestCounterparty");
+        mockCounterparty.setId(1L);
 
         trade = new Trade();
         trade.setTradeId(100001L);
         trade.setVersion(1);
         trade.setActive(true);
+        trade.setCounterparty(mockCounterparty);
         trade.setCreatedDate(LocalDateTime.now().minusDays(1));
         trade.setBook(mockBook);
+        trade.setLastTouchTimestamp(LocalDateTime.now().minusDays(1));
+
 
         TradeLegDTO leg1 = new TradeLegDTO();
         leg1.setNotional(BigDecimal.valueOf(1000000));
@@ -89,6 +108,11 @@ class TradeServiceTest {
     void testCreateTrade_Success() {
         // Given
         when(tradeRepository.save(any(Trade.class))).thenReturn(trade);
+        when(bookRepository.findByBookName(anyString())).thenReturn(Optional.of(mockBook));
+        when(counterpartyRepository.findByName(anyString())).thenReturn(Optional.of(mockCounterparty));
+        when(tradeStatusRepository.findByTradeStatus("NEW")).thenReturn(Optional.of(tradeStatus));
+        when(tradeLegRepository.save(any(TradeLeg.class))).thenReturn(mockTradeLeg);
+
 
         // When
         Trade result = tradeService.createTrade(tradeDTO);
@@ -97,6 +121,12 @@ class TradeServiceTest {
         assertNotNull(result);
         assertEquals(100001L, result.getTradeId());
         verify(tradeRepository).save(any(Trade.class));
+        verify(bookRepository).findByBookName(anyString());
+        verify(counterpartyRepository).findByName(anyString());
+        verify(tradeStatusRepository).findByTradeStatus("NEW");
+        verify(tradeLegRepository, times(2)).save(any(TradeLeg.class));
+
+
     }
 
     @Test
