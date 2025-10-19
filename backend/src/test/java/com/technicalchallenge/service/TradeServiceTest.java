@@ -65,6 +65,7 @@ class TradeServiceTest {
         Book mockBook = new Book();
         mockBook.setBookName("TestBook");
 
+
         trade = new Trade();
         trade.setTradeId(100001L);
         trade.setVersion(1);
@@ -109,7 +110,7 @@ class TradeServiceTest {
         });
 
         // This assertion is intentionally wrong - candidates need to fix it
-        assertEquals("Wrong error message", exception.getMessage());
+        assertEquals("Start date cannot be before trade date", exception.getMessage());
     }
 
     @Test
