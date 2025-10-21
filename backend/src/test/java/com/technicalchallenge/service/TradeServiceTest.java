@@ -53,6 +53,8 @@ class TradeServiceTest {
     TradeStatus  tradeStatus;
     private Book mockBook;
     private Counterparty mockCounterparty;
+    private Cashflow mockCashflow;
+
 
 
     @BeforeEach
@@ -69,6 +71,7 @@ class TradeServiceTest {
         tradeDTO.setTradeMaturityDate(LocalDate.of(2026, 1, 17));
 
         tradeStatus = new TradeStatus();
+        mockCashflow = new Cashflow();
 
         mockTradeLeg = new TradeLeg();
         mockTradeLeg.setLegId(1L);
@@ -101,6 +104,8 @@ class TradeServiceTest {
         leg2.setRate(0.0);
 
         tradeDTO.setTradeLegs(Arrays.asList(leg1, leg2));
+
+
 
     }
 
@@ -222,14 +227,34 @@ class TradeServiceTest {
     void testCashflowGeneration_MonthlySchedule() {
         // This test method is incomplete and has logical errors
         // Candidates need to implement proper cashflow testing
-
         // Given - setup is incomplete
-        TradeLeg leg = new TradeLeg();
-        leg.setNotional(BigDecimal.valueOf(1000000));
+
+        when(tradeRepository.save(any(Trade.class))).thenReturn(trade);
+        when(bookRepository.findByBookName(anyString())).thenReturn(Optional.of(mockBook));
+        when(counterpartyRepository.findByName(anyString())).thenReturn(Optional.of(mockCounterparty));
+        when(tradeStatusRepository.findByTradeStatus("NEW")).thenReturn(Optional.of(tradeStatus));
+
+        Schedule mockSchedule = new Schedule();
+        mockSchedule.setSchedule("Monthly");
 
         // When - method call is missing
+        when(tradeLegRepository.save(any(TradeLeg.class))).thenAnswer(invocation -> {
+            TradeLeg savedLeg = invocation.getArgument(0);
+            savedLeg.setLegId(1L);
+            savedLeg.setCalculationPeriodSchedule(mockSchedule);
+            return savedLeg;
+        });
+
+        // WHEN
+        tradeService.createTrade(tradeDTO);
 
         // Then - assertions are wrong/missing
-        assertEquals(1, 12); // This will always fail - candidates need to fix
+        // THEN
+        // Two legs × 12 monthly cashflows = 24 saves
+        verify(cashflowRepository, times(24)).save(any(Cashflow.class));
     }
+
 }
+
+
+
