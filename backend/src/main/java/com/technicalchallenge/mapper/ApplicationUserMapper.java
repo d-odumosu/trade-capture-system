@@ -12,9 +12,14 @@ import java.util.Optional;
 @Component
 public class ApplicationUserMapper {
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    private UserProfileRepository userProfileRepository;
+    private final UserProfileRepository userProfileRepository;
+
+    public ApplicationUserMapper(ModelMapper modelMapper, UserProfileRepository userProfileRepository) {
+        this.modelMapper = modelMapper;
+        this.userProfileRepository = userProfileRepository;
+    }
 
     public UserDTO toDto(ApplicationUser entity) {
         UserDTO dto = modelMapper.map(entity, UserDTO.class);

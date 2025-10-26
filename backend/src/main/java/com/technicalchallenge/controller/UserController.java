@@ -3,12 +3,7 @@ package com.technicalchallenge.controller;
 import com.technicalchallenge.dto.UserDTO;
 import com.technicalchallenge.mapper.ApplicationUserMapper;
 import com.technicalchallenge.model.ApplicationUser;
-import com.technicalchallenge.model.TradeType;
 import com.technicalchallenge.service.ApplicationUserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,15 +11,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/users")
@@ -32,11 +27,15 @@ import org.slf4j.LoggerFactory;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @Autowired
-    private ApplicationUserService applicationUserService;
 
-    @Autowired
-    private ApplicationUserMapper applicationUserMapper;
+    private final ApplicationUserService applicationUserService;
+    private final ApplicationUserMapper applicationUserMapper;
+
+    public UserController(ApplicationUserService applicationUserService,
+                          ApplicationUserMapper applicationUserMapper) {
+        this.applicationUserService = applicationUserService;
+        this.applicationUserMapper = applicationUserMapper;
+    }
 
     @GetMapping
     @Operation(summary = "Get all users",
