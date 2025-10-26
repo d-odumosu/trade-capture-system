@@ -2,10 +2,14 @@ package com.technicalchallenge.service;
 
 import com.technicalchallenge.dto.TradeDTO;
 import com.technicalchallenge.dto.TradeLegDTO;
+import com.technicalchallenge.mapper.TradeMapper;
 import com.technicalchallenge.model.*;
 import com.technicalchallenge.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,30 +22,46 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class TradeService {
     private static final Logger logger = LoggerFactory.getLogger(TradeService.class);
 
-    private TradeRepository tradeRepository;
-    private TradeLegRepository tradeLegRepository;
-    private CashflowRepository cashflowRepository;
-    private TradeStatusRepository tradeStatusRepository;
-    private BookRepository bookRepository;
-    private CounterpartyRepository counterpartyRepository;
-    private ApplicationUserRepository applicationUserRepository;
-    private TradeTypeRepository tradeTypeRepository;
-    private TradeSubTypeRepository tradeSubTypeRepository;
-    private CurrencyRepository currencyRepository;
-    private LegTypeRepository legTypeRepository;
-    private IndexRepository indexRepository;
-    private HolidayCalendarRepository holidayCalendarRepository;
-    private ScheduleRepository scheduleRepository;
-    private BusinessDayConventionRepository businessDayConventionRepository;
-    private PayRecRepository payRecRepository;
-    private AdditionalInfoService additionalInfoService;
+    private final TradeRepository tradeRepository;
+    private final TradeLegRepository tradeLegRepository;
+    private final CashflowRepository cashflowRepository;
+    private final TradeStatusRepository tradeStatusRepository;
+    private final BookRepository bookRepository;
+    private final CounterpartyRepository counterpartyRepository;
+    private final ApplicationUserRepository applicationUserRepository;
+    private final TradeTypeRepository tradeTypeRepository;
+    private final TradeSubTypeRepository tradeSubTypeRepository;
+    private final CurrencyRepository currencyRepository;
+    private final LegTypeRepository legTypeRepository;
+    private final IndexRepository indexRepository;
+    private final HolidayCalendarRepository holidayCalendarRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final BusinessDayConventionRepository businessDayConventionRepository;
+    private final PayRecRepository payRecRepository;
+    private final AdditionalInfoService additionalInfoService;
+    private final TradeMapper tradeMapper;
 
     public List<Trade> getAllTrades() {
         logger.info("Retrieving all trades");
         return tradeRepository.findAll();
+    }
+// new, search by search criteria
+    public Page<TradeDTO> searchTradesPaginated(SearchParameters params, Pageable pageable) {
+        Page<Trade> page = tradeRepository.findBySearchCriteria(
+                params.getCounterpartyName(),
+                params.getBookName(),
+                params.getTrader(),
+                params.getStatus(),
+                params.getFromDate(),
+                params.getToDate(),
+                pageable
+        );
+
+        return page.map(tradeMapper::toDto);
     }
 
     public Optional<Trade> getTradeById(Long tradeId) {

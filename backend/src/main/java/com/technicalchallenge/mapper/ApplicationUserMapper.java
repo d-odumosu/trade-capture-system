@@ -5,7 +5,6 @@ import com.technicalchallenge.model.ApplicationUser;
 import com.technicalchallenge.model.UserProfile;
 import com.technicalchallenge.repository.UserProfileRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -13,10 +12,8 @@ import java.util.Optional;
 @Component
 public class ApplicationUserMapper {
 
-    @Autowired
     private ModelMapper modelMapper;
 
-    @Autowired
     private UserProfileRepository userProfileRepository;
 
     public UserDTO toDto(ApplicationUser entity) {

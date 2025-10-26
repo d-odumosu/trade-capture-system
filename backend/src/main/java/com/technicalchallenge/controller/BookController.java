@@ -1,21 +1,15 @@
 package com.technicalchallenge.controller;
 
 import com.technicalchallenge.dto.BookDTO;
-import com.technicalchallenge.mapper.BookMapper;
-import com.technicalchallenge.model.Book;
 import com.technicalchallenge.service.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-
 import java.util.List;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/books")
@@ -23,7 +17,6 @@ import org.slf4j.LoggerFactory;
 public class BookController {
     private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
-    @Autowired
     private BookService bookService;
 
 
