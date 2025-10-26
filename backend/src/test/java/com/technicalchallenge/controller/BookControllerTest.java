@@ -26,10 +26,11 @@ public class BookControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private BookService bookService;
+    private BookMapper bookMapper;
 
     @MockitoBean
-    private BookMapper bookMapper;
+    private BookService bookService;
+
 
     @BeforeEach
     public void setup() {
