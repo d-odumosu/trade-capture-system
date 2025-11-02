@@ -3,11 +3,9 @@ package com.technicalchallenge.service;
 import com.technicalchallenge.model.ApplicationUser;
 import com.technicalchallenge.repository.ApplicationUserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +15,7 @@ import java.util.Optional;
 public class ApplicationUserService {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationUserService.class);
     private final ApplicationUserRepository applicationUserRepository;
+
 
     public boolean validateCredentials(String loginId, String password) {
         logger.debug("Validating credentials for user: {}", loginId);
@@ -38,9 +37,14 @@ public class ApplicationUserService {
         logger.debug("Retrieving user by login id: {}", loginId);
         return applicationUserRepository.findByLoginId(loginId);
     }
-
+//javadoc comment 'encoding password'
     public ApplicationUser saveUser(ApplicationUser user) {
         logger.info("Saving user: {}", user);
+        //check pass is not null, and password starts with "$2a"
+        if (user.getPassword() != null &&  user.getPassword().startsWith("$2a"){
+            //set password
+           user.setPassword();
+        }
         return applicationUserRepository.save(user);
     }
 

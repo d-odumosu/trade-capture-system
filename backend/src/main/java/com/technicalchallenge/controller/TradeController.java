@@ -1,8 +1,9 @@
 package com.technicalchallenge.controller;
 
+import com.technicalchallenge.dto.SearchParametersDTO;
 import com.technicalchallenge.dto.TradeDTO;
+import com.technicalchallenge.dto.TradeFilterRequestDTO;
 import com.technicalchallenge.mapper.TradeMapper;
-import com.technicalchallenge.model.SearchParameters;
 import com.technicalchallenge.model.Trade;
 import com.technicalchallenge.service.TradeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,8 +15,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -78,6 +81,8 @@ public class TradeController {
                 .orElse(ResponseEntity.notFound().build());
     }
     // Multi-criteria search start
+    //search answers “Find trades matching these conditions.”
+
 
     @GetMapping("/search")
     @Operation(
@@ -98,10 +103,10 @@ public class TradeController {
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
             @RequestParam(value = "toDate", required = false) LocalDate toDate,
-            Pageable pageable // Spring creates this automatically
+            @ParameterObject Pageable pageable // Spring creates this automatically
     ) {
         // Build SearchParameters using Lombok builder
-        SearchParameters params = SearchParameters.builder()
+        SearchParametersDTO params = SearchParametersDTO.builder()
                 .counterpartyName(counterpartyName)
                 .bookName(bookName)
                 .trader(trader)
@@ -114,6 +119,29 @@ public class TradeController {
 
         // Return paginated results
         return ResponseEntity.ok(results);
+    }
+
+    @GetMapping("/filter")
+    @Operation(
+            summary = "Advanced Trade Filtering ",
+            description = "Filter trades by multiple criteria such as type, status, counterparty, currency, and date ranges."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Filtered trades retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TradeDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid filter parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<Page<TradeDTO>> filterTrades(
+            @ParameterObject TradeFilterRequestDTO filters,
+            @ParameterObject Pageable pageable,
+            Authentication auth
+
+    ) {
+        String traderUsername = auth.getName(); // restrict to logged-in trader
+        Page<TradeDTO> result = tradeService.filterTrades(filters, traderUsername, pageable);
+        return ResponseEntity.ok(result);
     }
 
 

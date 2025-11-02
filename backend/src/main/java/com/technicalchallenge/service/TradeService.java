@@ -1,15 +1,19 @@
 package com.technicalchallenge.service;
 
+import com.technicalchallenge.dto.SearchParametersDTO;
 import com.technicalchallenge.dto.TradeDTO;
+import com.technicalchallenge.dto.TradeFilterRequestDTO;
 import com.technicalchallenge.dto.TradeLegDTO;
 import com.technicalchallenge.mapper.TradeMapper;
 import com.technicalchallenge.model.*;
 import com.technicalchallenge.repository.*;
+import com.technicalchallenge.specification.TradeSpecification;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +54,7 @@ public class TradeService {
         return tradeRepository.findAll();
     }
 // new, search by search criteria
-    public Page<TradeDTO> searchTradesPaginated(SearchParameters params, Pageable pageable) {
+    public Page<TradeDTO> searchTradesPaginated(SearchParametersDTO params, Pageable pageable) {
         Page<Trade> page = tradeRepository.findBySearchCriteria(
                 params.getCounterpartyName(),
                 params.getBookName(),
@@ -62,6 +66,12 @@ public class TradeService {
         );
 
         return page.map(tradeMapper::toDto);
+    }
+
+    public Page<TradeDTO> filterTrades(TradeFilterRequestDTO filters, String traderUsername, Pageable pageable){
+        Specification<Trade> specification = TradeSpecification.filterTrades(filters, traderUsername);
+        return tradeRepository.findAll(specification, pageable).map(tradeMapper::toDto);
+
     }
 
     public Optional<Trade> getTradeById(Long tradeId) {
