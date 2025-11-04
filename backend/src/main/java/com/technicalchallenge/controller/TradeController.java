@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
@@ -142,6 +142,35 @@ public class TradeController {
         String traderUsername = auth.getName(); // restrict to logged-in trader
         Page<TradeDTO> result = tradeService.filterTrades(filters, traderUsername, pageable);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/rsql")
+    @Operation(
+            summary = "Advanced Trade Filtering using RSQL",
+            description = """
+                Performs advanced filtering of trades using RSQL syntax.
+                Example queries:
+                - tradeType.name==FX
+                - notional=gt=1000000
+                - status==NEW;book.name==LondonDesk
+                - status=in=(NEW,AMENDED)
+                Supports pagination and sorting.
+                """
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trades retrieved successfully",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = TradeDTO.class)))),
+            @ApiResponse(responseCode = "400", description = "Invalid RSQL syntax or parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error while retrieving trades")
+    })
+    public ResponseEntity<Page<TradeDTO>> filterTradesRsql(
+            @RequestParam String searchTerm,
+            @ParameterObject Pageable pageable
+    )
+    {
+        Page<TradeDTO> trades = tradeService.rsqlSearch(searchTerm, pageable);
+        return ResponseEntity.ok(trades);
     }
 
 

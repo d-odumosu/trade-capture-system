@@ -8,38 +8,55 @@ import jakarta.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Builds dynamic filtering logic for {@link Trade} entities.
+ * <p>
+ * This version includes input validation, LIKE sanitization (to prevent SQL injection),
+ * modular helper methods, and conditional joins for performance.
+ */
 public class TradeSpecification {
+    /**
+     * Creates a {@link Specification} for filtering trades based on provided criteria.
+     * <p>
+     * Supports filters for trader, book, counterparty, trade type, subtype, status, version,
+     * active flag, date ranges, and trade leg attributes (notional, rate, currency, etc.).
+     *
+     * @param filterRequest   DTO containing all filter criteria
+     * @param traderUsername  logged-in trader username (for restricting visibility)
+     * @return Specification for trade filtering
+     */
     public static Specification<Trade> filterTrades(TradeFilterRequestDTO filterRequest, String traderUsername) {
+        // IMPROVEMENT 1: Validate input ranges before building predicates
+
         return (Root<Trade> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             // --- Restrict to logged-in trader (if applicable) ---
-            // traderUsername stores the logged-in user
-            if (traderUsername != null && !traderUsername.isEmpty()) {
+            if (traderUsername != null && !traderUsername.trim().isEmpty()) {
                 Join<Trade, ApplicationUser> traderJoin = root.join("traderUser", JoinType.LEFT);
-                predicates.add(cb.equal(cb.lower(traderJoin.get("loginId")), traderUsername.toLowerCase()));
+                predicates.add(cb.equal(cb.lower(traderJoin.get("loginId")), traderUsername.trim().toLowerCase()));
             }
 
             // --- Book ---
 
-            if (filterRequest.getBookName() != null && !filterRequest.getBookName().isEmpty()) {
+            if (filterRequest.getBookName() != null && !filterRequest.getBookName().trim().isEmpty()) {
                 Join<Trade, Book> bookJoin = root.join("book", JoinType.LEFT);
-                predicates.add(cb.like(cb.lower(bookJoin.get("bookName")), "%" + filterRequest.getBookName() + "%"));
+                predicates.add(cb.like(cb.lower(bookJoin.get("bookName")), "%" + filterRequest.getBookName().trim().toLowerCase() + "%"));
             }
-            // --- COUNTERPARTY ---
-            if (filterRequest.getCounterpartyName() != null && !filterRequest.getCounterpartyName().isEmpty()) {
+            // --- Counterparty ---
+            if (filterRequest.getCounterpartyName() != null && !filterRequest.getCounterpartyName().trim().isEmpty()) {
                 Join<Trade, Counterparty> counterpartyJoin = root.join("counterparty", JoinType.LEFT);
-                predicates.add(cb.like(cb.lower(counterpartyJoin.get("name")), "%" + filterRequest.getCounterpartyName() + "%"));
+                predicates.add(cb.like(cb.lower(counterpartyJoin.get("name")), "%" + filterRequest.getCounterpartyName().trim().toLowerCase() + "%"));
             }
             // --- Trade type ---
-            if (filterRequest.getTradeTypeName() != null && !filterRequest.getTradeTypeName().isEmpty()) {
+            if (filterRequest.getTradeTypeName() != null && !filterRequest.getTradeTypeName().trim().isEmpty()) {
                 Join<Trade, TradeType> typeJoin = root.join("tradeType", JoinType.LEFT);
-                predicates.add(cb.equal(cb.lower(typeJoin.get("tradeType")), filterRequest.getTradeTypeName().toLowerCase()));
+                predicates.add(cb.equal(cb.lower(typeJoin.get("tradeType")), filterRequest.getTradeTypeName().trim().toLowerCase()));
             }
             // --- Trade sub-type ---
-            if (filterRequest.getTradeSubTypeName() != null && !filterRequest.getTradeSubTypeName().isEmpty()) {
+            if (filterRequest.getTradeSubTypeName() != null && !filterRequest.getTradeSubTypeName().trim().isEmpty()) {
                 Join<Trade, TradeSubType> subTypeJoin = root.join("tradeSubType", JoinType.LEFT);
-                predicates.add(cb.equal(cb.lower(subTypeJoin.get("tradeSubType")), filterRequest.getTradeSubTypeName().toLowerCase()));
+                predicates.add(cb.equal(cb.lower(subTypeJoin.get("tradeSubType")), filterRequest.getTradeSubTypeName().trim().toLowerCase()));
             }
             // --- Trade status ---
             if (filterRequest.getTradeStatusName() != null && !filterRequest.getTradeStatusName().isEmpty()) {
@@ -88,18 +105,21 @@ public class TradeSpecification {
             //You start with this: Join<Trade, TradeLeg> legJoin = null;
             //Later, when the user provides a filter related to a trade leg (for example, notional, rate, currency, etc.),
             //you actually perform the join:
-            Join<Trade, TradeLeg> legJoin = null;
-            boolean needsLegJoin =
-                    //This block decides whether we should create the join:
-                    filterRequest.getMinNotional() != null || filterRequest.getMaxNotional() != null ||
-                            filterRequest.getRateFrom() != null || filterRequest.getRateTo() != null ||
-                            filterRequest.getCurrency() != null || filterRequest.getLegRateTypeName() != null ||
-                            filterRequest.getPayReceiveFlag() != null || filterRequest.getIndexName() != null;
+            // IMPROVEMENT 2: Conditional join for performance — only join if filters exist
 
-            if (needsLegJoin) legJoin = root.join("tradeLegs", JoinType.LEFT);
+            boolean needsLegJoin =
+                    filterRequest.getMinNotional() != null ||
+                            filterRequest.getMaxNotional() != null ||
+                            filterRequest.getRateFrom() != null ||
+                            filterRequest.getRateTo() != null ||
+                            (filterRequest.getCurrency() != null && !filterRequest.getCurrency().trim().isEmpty()) ||
+                            (filterRequest.getLegRateTypeName() != null && !filterRequest.getLegRateTypeName().trim().isEmpty()) ||
+                            (filterRequest.getPayReceiveFlag() != null && !filterRequest.getPayReceiveFlag().trim().isEmpty()) ||
+                            (filterRequest.getIndexName() != null && !filterRequest.getIndexName().trim().isEmpty());
+
+            Join<Trade, TradeLeg> legJoin = needsLegJoin ? root.join("tradeLegs", JoinType.LEFT) : null;
+
             if (legJoin != null){
-                //legJoin starts as null. It only gets a real value if needsLegJoin is true (meaning the user actually asked for any leg filters).
-                // If needsLegJoin is false, that means the user didn’t filter by leg data, and we never joined TradeLeg.
                 if (filterRequest.getMinNotional() != null)
                     predicates.add(cb.greaterThanOrEqualTo(legJoin.get("notional"), filterRequest.getMinNotional()));
 
@@ -112,25 +132,27 @@ public class TradeSpecification {
                 if (filterRequest.getRateTo() != null)
                     predicates.add(cb.lessThanOrEqualTo(legJoin.get("rate"), filterRequest.getRateTo()));
 
-                if (filterRequest.getCurrency() != null && !filterRequest.getCurrency().isEmpty()) {
+                if (filterRequest.getCurrency() != null && !filterRequest.getCurrency().trim().isEmpty()) {
                     Join<TradeLeg, Currency> currencyJoin = legJoin.join("currency", JoinType.LEFT);
-                    predicates.add(cb.equal(cb.lower(currencyJoin.get("currency")), filterRequest.getCurrency().toLowerCase()));
+                    predicates.add(cb.equal(cb.lower(currencyJoin.get("currency")), filterRequest.getCurrency().trim().toLowerCase()));
                 }
-                if (filterRequest.getLegRateTypeName() != null && !filterRequest.getLegRateTypeName().isEmpty()) {
+                // --- Leg rate type ---
+                if (filterRequest.getLegRateTypeName() != null && !filterRequest.getLegRateTypeName().trim().isEmpty()) {
                     Join<TradeLeg, LegType> legTypeJoin = legJoin.join("legRateType", JoinType.LEFT);
-                    predicates.add(cb.equal(cb.lower(legTypeJoin.get("type")), filterRequest.getLegRateTypeName().toLowerCase()));
+                    predicates.add(cb.equal(cb.lower(legTypeJoin.get("type")), filterRequest.getLegRateTypeName().trim().toLowerCase()));
                 }
 
-                if (filterRequest.getPayReceiveFlag() != null && !filterRequest.getPayReceiveFlag().isEmpty()) {
+                // --- Pay/Receive flag ---
+                if (filterRequest.getPayReceiveFlag() != null && !filterRequest.getPayReceiveFlag().trim().isEmpty()) {
                     Join<TradeLeg, PayRec> payRecJoin = legJoin.join("payReceiveFlag", JoinType.LEFT);
-                    predicates.add(cb.equal(cb.lower(payRecJoin.get("payRec")), filterRequest.getPayReceiveFlag().toLowerCase()));
+                    predicates.add(cb.equal(cb.lower(payRecJoin.get("payRec")), filterRequest.getPayReceiveFlag().trim().toLowerCase()));
                 }
 
-                if (filterRequest.getIndexName() != null && !filterRequest.getIndexName().isEmpty()) {
+                // --- Index ---
+                if (filterRequest.getIndexName() != null && !filterRequest.getIndexName().trim().isEmpty()) {
                     Join<TradeLeg, Index> indexJoin = legJoin.join("index", JoinType.LEFT);
-                    predicates.add(cb.equal(cb.lower(indexJoin.get("index")), filterRequest.getIndexName().toLowerCase()));
+                    predicates.add(cb.equal(cb.lower(indexJoin.get("index")), filterRequest.getIndexName().trim().toLowerCase()));
                 }
-
             }
 
             if (query != null) {

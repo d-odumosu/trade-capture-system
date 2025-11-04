@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +17,8 @@ import java.util.Optional;
 public class ApplicationUserService {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationUserService.class);
     private final ApplicationUserRepository applicationUserRepository;
+    private final PasswordEncoder passwordEncoder;
+
 
 
     public boolean validateCredentials(String loginId, String password) {
@@ -39,11 +43,11 @@ public class ApplicationUserService {
     }
 //javadoc comment 'encoding password'
     public ApplicationUser saveUser(ApplicationUser user) {
-        logger.info("Saving user: {}", user);
+        logger.info("Saving user with loginId: {}", user.getLoginId());
         //check pass is not null, and password starts with "$2a"
-        if (user.getPassword() != null &&  user.getPassword().startsWith("$2a"){
-            //set password
-           user.setPassword();
+        if (user.getPassword() != null && user.getPassword().startsWith("$2a")) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         }
         return applicationUserRepository.save(user);
     }
