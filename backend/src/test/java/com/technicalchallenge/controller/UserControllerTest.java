@@ -1,5 +1,6 @@
 package com.technicalchallenge.controller;
 
+import com.technicalchallenge.config.TestSecurityConfig;
 import com.technicalchallenge.dto.UserDTO;
 import com.technicalchallenge.mapper.ApplicationUserMapper;
 import com.technicalchallenge.model.ApplicationUser;
@@ -8,9 +9,12 @@ import com.technicalchallenge.service.ApplicationUserService;
 import com.technicalchallenge.service.UserProfileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -20,7 +24,9 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(UserController.class)
+@Import(TestSecurityConfig.class)
 public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;

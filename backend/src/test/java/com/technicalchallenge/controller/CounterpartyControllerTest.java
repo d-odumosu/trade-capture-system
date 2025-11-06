@@ -1,5 +1,6 @@
 package com.technicalchallenge.controller;
 
+import com.technicalchallenge.config.TestSecurityConfig;
 import com.technicalchallenge.dto.CounterpartyDTO;
 import com.technicalchallenge.mapper.CounterpartyMapper;
 import com.technicalchallenge.model.Counterparty;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(CounterpartyController.class)
+@Import(TestSecurityConfig.class)
 public class CounterpartyControllerTest {
     @Autowired
     private MockMvc mockMvc;

@@ -2,6 +2,7 @@ package com.technicalchallenge.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.technicalchallenge.config.TestSecurityConfig;
 import com.technicalchallenge.dto.CashflowDTO;
 import com.technicalchallenge.dto.CashflowGenerationRequest;
 import com.technicalchallenge.mapper.CashflowMapper;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -35,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(CashflowController.class)
+@Import(TestSecurityConfig.class)
 public class CashflowControllerTest {
 
     @Autowired

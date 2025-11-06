@@ -1,5 +1,6 @@
 package com.technicalchallenge.controller;
 
+import com.technicalchallenge.config.TestSecurityConfig;
 import com.technicalchallenge.dto.BookDTO;
 import com.technicalchallenge.mapper.BookMapper;
 import com.technicalchallenge.model.Book;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(BookController.class)
+@Import(TestSecurityConfig.class)
 public class BookControllerTest {
     @Autowired
     private MockMvc mockMvc;
