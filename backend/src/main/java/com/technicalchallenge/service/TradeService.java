@@ -10,6 +10,9 @@ import com.technicalchallenge.repository.*;
 import com.technicalchallenge.rsql.RsqlParserService;
 import com.technicalchallenge.specification.TradeSpecification;
 import lombok.RequiredArgsConstructor;
+import com.github.perplexhub.rsql.RSQLJPASupport;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -603,16 +606,10 @@ public class TradeService {
         return 10000L + tradeRepository.count();
     }
 
-    public Page<TradeDTO> rsqlSearch(String searchTerm, Pageable pageable) {
-        // CustomRsqlVisitor will convert the parsed tree into a Specification
-        //“I got the raw RSQL text from the controller; please turn it into a Specification for me.”
-        Specification<Trade> spec = rsqlParserService.parse(searchTerm);
-
-        // this will Run the query
-        Page<Trade> trades = tradeRepository.findAll(spec, pageable);
-
-        // Map entities to DTOs
-        return trades.map(tradeMapper::toDto);
+    public Page<TradeDTO> searchTradesWithRsql(String query, Pageable pageable) {
+        Specification<Trade> spec = RSQLJPASupport.toSpecification(query);
+        Page<Trade> page = tradeRepository.findAll(spec, pageable);
+        return page.map(trade -> modelMapper.map(trade, TradeDTO.class));
     }
 
     }
