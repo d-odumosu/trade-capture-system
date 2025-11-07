@@ -148,14 +148,14 @@ public class TradeController {
     @Operation(
             summary = "Advanced Trade Filtering using RSQL",
             description = """
-                Performs advanced filtering of trades using RSQL syntax.
-                Example queries:
-                - tradeType.name==FX
-                - notional=gt=1000000
-                - status==NEW;book.name==LondonDesk
-                - status=in=(NEW,AMENDED)
-                Supports pagination and sorting.
-                """
+        Performs advanced filtering of trades using RSQL syntax.
+        Example queries:
+        - tradeType.name==FX
+        - notional=gt=1000000
+        - status==NEW;book.name==LondonDesk
+        - status=in=(NEW,AMENDED)
+        Supports pagination and sorting.
+        """
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Trades retrieved successfully",
@@ -165,13 +165,13 @@ public class TradeController {
             @ApiResponse(responseCode = "500", description = "Internal server error while retrieving trades")
     })
     public ResponseEntity<Page<TradeDTO>> filterTradesRsql(
-            @RequestParam String searchTerm,
+            @RequestParam("query") String query,
             @ParameterObject Pageable pageable
-    )
-    {
-        Page<TradeDTO> trades = tradeService.rsqlSearch(searchTerm, pageable);
+    ) {
+        Page<TradeDTO> trades = tradeService.searchTradesWithRsql(query, pageable);
         return ResponseEntity.ok(trades);
     }
+
 
 
     @PostMapping

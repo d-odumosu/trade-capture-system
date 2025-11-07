@@ -1,7 +1,6 @@
 package com.technicalchallenge.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,13 +43,15 @@ public class TradeDTO {
     private LocalDateTime deactivatedDate;
 
     // Book reference
+    @NotNull(message = "Book ID is required")
     private Long bookId;
-    @NotBlank(message = "Book and Counterparty are required")
+
     private String bookName;
 
     // Counterparty reference
+    @NotNull(message = "Counterparty ID is required")
     private Long counterpartyId;
-    @NotNull(message = "Counterparty name is required")
+
     private String counterpartyName;
 
     // User references

@@ -26,7 +26,7 @@ import java.time.LocalDate;
 public class ValidationContext {
 
     /** The trade being validated. */
-    private final TradeDTO trade;
+    private final TradeDTO tradeDTO;
 
     /** The authenticated user performing the validation or operation. */
     private final ApplicationUser user;
@@ -45,10 +45,6 @@ public class ValidationContext {
      * Validators can use this to determine which checks apply.
      */
     public enum TradeOperationType {
-        CREATE,
-        AMEND,
-        CANCEL,
-        TERMINATE,
-        VIEW
+        CREATE, AMEND, CANCEL, TERMINATE, VIEW
     }
 }

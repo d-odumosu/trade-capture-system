@@ -12,11 +12,9 @@ import java.util.List;
 public class ValidationResult {
     private final List<ValidationMessage> messages = new ArrayList<>();
 
-
     public void addError(String message) {
         messages.add(new ValidationMessage("ERROR", message));
     }
-
     public void addWarning(String message) {
         messages.add(new ValidationMessage("WARNING", message));
     }

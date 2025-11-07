@@ -11,4 +11,7 @@ public interface ApplicationUserRepository extends JpaRepository<ApplicationUser
     // Custom query methods if needed
     Optional<ApplicationUser> findByLoginId(String loginId);
     Optional<ApplicationUser> findByFirstName(String firstName);
+    boolean existsByLoginId(String loginId);
+
+
 }
