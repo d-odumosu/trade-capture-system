@@ -101,11 +101,11 @@ public class TradeSpecification {
                 ));
             }
 
-            // --- Trade Leg filters ---
+            //  Trade Leg filters
             //You start with this: Join<Trade, TradeLeg> legJoin = null;
             //Later, when the user provides a filter related to a trade leg (for example, notional, rate, currency, etc.),
             //you actually perform the join:
-            // IMPROVEMENT 2: Conditional join for performance — only join if filters exist
+            //  Conditional join for performance — only join if filters exist
 
             boolean needsLegJoin =
                     filterRequest.getMinNotional() != null ||
@@ -136,19 +136,19 @@ public class TradeSpecification {
                     Join<TradeLeg, Currency> currencyJoin = legJoin.join("currency", JoinType.LEFT);
                     predicates.add(cb.equal(cb.lower(currencyJoin.get("currency")), filterRequest.getCurrency().trim().toLowerCase()));
                 }
-                // --- Leg rate type ---
+                //  Leg rate type
                 if (filterRequest.getLegRateTypeName() != null && !filterRequest.getLegRateTypeName().trim().isEmpty()) {
                     Join<TradeLeg, LegType> legTypeJoin = legJoin.join("legRateType", JoinType.LEFT);
                     predicates.add(cb.equal(cb.lower(legTypeJoin.get("type")), filterRequest.getLegRateTypeName().trim().toLowerCase()));
                 }
 
-                // --- Pay/Receive flag ---
+                //  Pay/Receive flag
                 if (filterRequest.getPayReceiveFlag() != null && !filterRequest.getPayReceiveFlag().trim().isEmpty()) {
                     Join<TradeLeg, PayRec> payRecJoin = legJoin.join("payReceiveFlag", JoinType.LEFT);
                     predicates.add(cb.equal(cb.lower(payRecJoin.get("payRec")), filterRequest.getPayReceiveFlag().trim().toLowerCase()));
                 }
 
-                // --- Index ---
+                //  Index
                 if (filterRequest.getIndexName() != null && !filterRequest.getIndexName().trim().isEmpty()) {
                     Join<TradeLeg, Index> indexJoin = legJoin.join("index", JoinType.LEFT);
                     predicates.add(cb.equal(cb.lower(indexJoin.get("index")), filterRequest.getIndexName().trim().toLowerCase()));

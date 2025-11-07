@@ -7,12 +7,10 @@ import com.technicalchallenge.dto.TradeLegDTO;
 import com.technicalchallenge.mapper.TradeMapper;
 import com.technicalchallenge.model.*;
 import com.technicalchallenge.repository.*;
-import com.technicalchallenge.rsql.RsqlParserService;
 import com.technicalchallenge.specification.TradeSpecification;
+import io.github.perplexhub.rsql.RSQLJPASupport;
 import lombok.RequiredArgsConstructor;
-import com.github.perplexhub.rsql.RSQLJPASupport;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -52,7 +50,8 @@ public class TradeService {
     private final PayRecRepository payRecRepository;
     private final AdditionalInfoService additionalInfoService;
     private final TradeMapper tradeMapper;
-    private final RsqlParserService rsqlParserService;
+    private final ModelMapper modelMapper;
+
 
     public List<Trade> getAllTrades() {
         logger.info("Retrieving all trades");

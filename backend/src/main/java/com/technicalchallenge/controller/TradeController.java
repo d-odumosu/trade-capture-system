@@ -83,7 +83,6 @@ public class TradeController {
     // Multi-criteria search start
     //search answers “Find trades matching these conditions.”
 
-
     @GetMapping("/search")
     @Operation(
             summary = "Search trades (paginated, multi-criteria)",

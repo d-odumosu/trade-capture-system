@@ -27,11 +27,7 @@ public class ReferenceDataGatewayImpl implements ReferenceDataGateway {
     private final TradeSubTypeRepository tradeSubTypeRepository;
     private final TradeStatusRepository tradeStatusRepository;
 
-
-
     //  BOOKS
-
-
     @Override
     public boolean bookExists(Long id) {
         return bookRepository.existsById(id);
@@ -45,10 +41,7 @@ public class ReferenceDataGatewayImpl implements ReferenceDataGateway {
     }
 
 
-
     //  COUNTERPARTIES
-
-
     @Override
     public boolean counterpartyExists(Long id) {
         return counterpartyRepository.existsById(id);
@@ -62,10 +55,7 @@ public class ReferenceDataGatewayImpl implements ReferenceDataGateway {
     }
 
 
-
     //  USERS
-
-
     /**
      * Used for validating the logged-in user (based on loginId).
      */
@@ -79,7 +69,7 @@ public class ReferenceDataGatewayImpl implements ReferenceDataGateway {
      */
     @Override
     public boolean userExistsById(Long id) {
-        return userRepository.existsById(id);
+        return !userRepository.existsById(id);
     }
 
     @Override
@@ -91,8 +81,6 @@ public class ReferenceDataGatewayImpl implements ReferenceDataGateway {
 
 
     //  TRADE METADATA
-
-
     @Override
     public boolean tradeTypeExists(Long id) {
         return tradeTypeRepository.existsById(id);

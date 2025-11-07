@@ -14,39 +14,42 @@ public class EntityStatusValidator implements Validator {
         ReferenceDataGateway refData = context.getRefDataGateway();
         ApplicationUser user = context.getUser();
 
+        // BOOK + COUNTERPARTY — combined validation for missing fields
+        if (tradeDTO.getBookId() == null || tradeDTO.getCounterpartyId() == null) {
+            result.addError("Book and Counterparty are required");
+            return;
+        }
+
         // BOOK
-        if (tradeDTO.getBookId() == null) {
-            result.addError("Book ID is missing from the trade.");
-        } else if (!refData.bookExists(tradeDTO.getBookId())) {
+        if (!refData.bookExists(tradeDTO.getBookId())) {
             result.addError("Book with ID " + tradeDTO.getBookId() + " does not exist.");
         } else if (!refData.isBookActive(tradeDTO.getBookId())) {
             result.addError("Book with ID " + tradeDTO.getBookId() + " is inactive.");
         }
 
         // COUNTERPARTY
-        if (tradeDTO.getCounterpartyId() == null) {
-            result.addError("Counterparty ID is missing from the trade.");
-        } else if (!refData.counterpartyExists(tradeDTO.getCounterpartyId())) {
+        if (!refData.counterpartyExists(tradeDTO.getCounterpartyId())) {
             result.addError("Counterparty with ID " + tradeDTO.getCounterpartyId() + " does not exist.");
         } else if (!refData.isCounterpartyActive(tradeDTO.getCounterpartyId())) {
             result.addError("Counterparty with ID " + tradeDTO.getCounterpartyId() + " is inactive.");
         }
 
+
         // TRADER USER
         if (tradeDTO.getTraderUserId() == null) {
             result.addError("Trader User ID is missing from the trade.");
-        } else if (!refData.userExistsById(tradeDTO.getTraderUserId())) {
+        } else if (refData.userExistsById(tradeDTO.getTraderUserId())) {
             result.addError("Trader User with ID " + tradeDTO.getTraderUserId() + " does not exist.");
-        } else if (!refData.isUserActive(tradeDTO.getTraderUserId())) {
+        } else if (refData.isUserActive(tradeDTO.getTraderUserId())) {
             result.addError("Trader User with ID " + tradeDTO.getTraderUserId() + " is inactive.");
         }
 
         // TRADE INPUTTER USER
         if (tradeDTO.getTradeInputterUserId() == null) {
             result.addError("Trade Inputter User ID is missing from the trade.");
-        } else if (!refData.userExistsById(tradeDTO.getTradeInputterUserId())) {
+        } else if (refData.userExistsById(tradeDTO.getTradeInputterUserId())) {
             result.addError("Trade Inputter User with ID " + tradeDTO.getTradeInputterUserId() + " does not exist.");
-        } else if (!refData.isUserActive(tradeDTO.getTradeInputterUserId())) {
+        } else if (refData.isUserActive(tradeDTO.getTradeInputterUserId())) {
             result.addError("Trade Inputter User with ID " + tradeDTO.getTradeInputterUserId() + " is inactive.");
         }
 
@@ -83,7 +86,7 @@ public class EntityStatusValidator implements Validator {
             result.addError("No user context provided for validation.");
         } else if (!refData.userExists(user.getLoginId())) {
             result.addError("User with loginId '" + user.getLoginId() + "' does not exist.");
-        } else if (!refData.isUserActive(user.getId())) {
+        } else if (refData.isUserActive(user.getId())) {
             result.addError("User with loginId '" + user.getLoginId() + "' is inactive and cannot perform this operation.");
         }
     }
